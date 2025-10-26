@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.haustoj.dao.UserDao">
+    <resultMap id="BaseResultMap" type="com.example.haustoj.pojo.entity.User">
+<!--        用户id-->
+        <id property="id" column="id"/>
+        <!--文章所属用户id-->
+        <result property="userId" column="user_id"/>
+        <!--文章的标题-->
+        <result property="articleTitle" column="article_title"/>
+        <!--文章的正文-->
+        <result property="articleBody" column="article_body"/>
+        <!--文章状态 0:正常,1:删除-->
+        <result property="status" column="status"/>
+        <!--文章发布时间-->
+        <result property="publishTime" column="publish_time"/>
+        <!--文章最近一次的更新时间-->
+        <result property="updateTime" column="update_time"/>
+        <!--文章的浏览次数-->
+        <result property="viewCount" column="view_count"/>
+    </resultMap>
+</mapper>
