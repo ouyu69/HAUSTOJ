@@ -11,15 +11,12 @@ import lombok.Data;
  * @Description:
  */
 @Data
-@TableName("submission")
-public class Submission {
+@TableName("test_case")
+public class TestCase {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long problemId;
-    private Long userId;
-    private Long contestId;
-    private String language;
-    private String code;
+    private String inputFilepath;
+    private String outputFilepath;
     private Integer status;
-    private Data createTime;
 }

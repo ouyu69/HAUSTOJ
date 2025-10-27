@@ -8,11 +8,10 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @FileName Problem
- * @Description
- * @Author ouyu
- * @Date 2025-10-24
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-27 18:17
+ * @Description:
+ */
 @Data
 @TableName("problem")
 public class Problem {
@@ -20,8 +19,9 @@ public class Problem {
     private Long id;
     private String title;
     private String description;
-    private Date createTime;
-    // 0: 正常 1: 隐藏 2: 删除
+    // 0: 正常 1: 禁用/隐藏 2: 删除
     private Integer status;
+    private Date createTime;
+    private Date updateTime;
 
 }

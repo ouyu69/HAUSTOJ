@@ -7,19 +7,19 @@ import lombok.Data;
 
 /**
  * @Author: ouyu69
- * @Date: 2025-10-27 18:39
+ * @Date: 2025-10-27 18:16
  * @Description:
  */
 @Data
-@TableName("submission")
-public class Submission {
+@TableName("Auth")
+public class Auth {
     @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long problemId;
-    private Long userId;
-    private Long contestId;
-    private String language;
-    private String code;
+    private Long id ;
+    private String name ;
+    private String permission;
+    private String description;
+    // 0 可用，1禁用
     private Integer status;
-    private Data createTime;
+    private String createTime;
+    private String updateTime;
 }

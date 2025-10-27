@@ -8,6 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("com.example.haustoj.dao")
 public class HaustojApplication {
 
+    
+    /** 
+     * @param args
+     */
     public static void main(String[] args) {
         SpringApplication.run(HaustojApplication.class, args);
     }

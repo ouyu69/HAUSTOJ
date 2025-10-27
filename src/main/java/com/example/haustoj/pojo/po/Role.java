@@ -5,21 +5,25 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @Author: ouyu69
  * @Date: 2025-10-27 18:39
  * @Description:
  */
 @Data
-@TableName("submission")
-public class Submission {
+@TableName("role")
+public class Role {
+    /**
+     * 角色id
+     */
     @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long problemId;
-    private Long userId;
-    private Long contestId;
-    private String language;
-    private String code;
-    private Integer status;
-    private Data createTime;
+    private Long id ;
+    private String name ;
+    private String description ;
+    private Integer status ;
+    private Date  createTime ;
+    private Date updateTime ;
+
 }

@@ -8,11 +8,10 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * @FileName Contest
- * @Description
- * @Author ouyu
- * @Date 2025-10-24
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-27 18:17
+ * @Description:
+ */
 @Data
 @TableName("contest")
 public class Contest {
