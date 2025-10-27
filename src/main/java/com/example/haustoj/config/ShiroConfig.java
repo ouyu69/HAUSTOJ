@@ -18,11 +18,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @FileName ShiroConfig
- * @Description
- * @Author ouyu
- * @Date 2025-10-26
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-26 18:14
+ * @Description:
+ */
 @Configuration
 public class ShiroConfig {
     @Resource
@@ -35,6 +34,11 @@ public class ShiroConfig {
 
     public ShiroConfig() {
     }
+    
+    /** 
+     * @param accountRealm
+     * @return DefaultWebSecurityManager
+     */
     @Bean(name = "securityManager")
     public DefaultWebSecurityManager defaultWebSecurityManager(@Qualifier("getAccountRealm") AccountRealm accountRealm) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager(accountRealm);

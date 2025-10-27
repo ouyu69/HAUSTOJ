@@ -3,11 +3,11 @@ package com.example.haustoj.common;
 import lombok.Data;
 
 /**
- * @FileName CommonResult
- * @Description
- * @Author ouyu
- * @Date 2025-10-26
- **/
+ * 
+ * @Author: ouyu69
+ * @Date: 2025-10-26 18:13
+ * @Description:
+ */
 @Data
 public class CommonResult<T> {
     private String message;
@@ -64,6 +64,11 @@ public class CommonResult<T> {
         return new CommonResult<T>(ResultStatus.FAIL.getCode(), null, msg);
     }
 
+    
+    /** 
+     * @param resultStatus
+     * @return CommonResult<T>
+     */
     public static <T> CommonResult<T> errorResponse(ResultStatus resultStatus) {
         return new CommonResult<T>(resultStatus.getCode(), null, resultStatus.getMsg());
     }

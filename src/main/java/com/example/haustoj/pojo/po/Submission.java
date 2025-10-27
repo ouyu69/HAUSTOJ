@@ -1,4 +1,4 @@
-package com.example.haustoj.pojo.entity;
+package com.example.haustoj.pojo.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -6,11 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
- * @FileName Submission
- * @Description
- * @Author ouyu
- * @Date 2025-10-24
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-27 18:39
+ * @Description:
+ */
 @Data
 @TableName("submission")
 public class Submission {
@@ -20,7 +19,6 @@ public class Submission {
     private Long userId;
     private Long contestId;
     private String language;
-
     private String code;
     private Integer status;
     private Data createTime;

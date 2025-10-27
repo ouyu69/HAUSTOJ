@@ -17,6 +17,12 @@ public class ShiroCacheManager implements CacheManager {
     private Long cacheLiveTime;
     private String cacheKeyPrefix;
     private RedisUtils redisUtils;
+    
+    /** 
+     * @param s
+     * @return Cache<K, V>
+     * @throws CacheException
+     */
     @Override
     public <K, V> Cache<K, V> getCache(String s) throws CacheException {
         return new ShiroCache<K, V>(cacheLiveTime, cacheKeyPrefix, redisUtils);

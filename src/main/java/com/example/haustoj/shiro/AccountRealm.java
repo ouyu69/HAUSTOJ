@@ -11,6 +11,8 @@ import com.example.haustoj.utils.JwtUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @FileName AccountRealm
@@ -31,6 +33,12 @@ public class AccountRealm  extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        AccountProfile accountProfile = (AccountProfile) principalCollection.getPrimaryPrincipal();
+        // 角色权限表
+        List<String> permisssionsNameList= new LinkedList<>();
+        // 用户角色表
+        List<String> roleNameList= new LinkedList<>();
+
         return null;
     }
     /**

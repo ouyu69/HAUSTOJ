@@ -14,6 +14,10 @@ public class JwtToken implements AuthenticationToken{
         this.token = token;
     }
 
+    
+    /** 
+     * @return Object
+     */
     @Override
     public Object getPrincipal() {
         return this.token;

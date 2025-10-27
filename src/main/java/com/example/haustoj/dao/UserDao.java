@@ -1,13 +1,12 @@
 package com.example.haustoj.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.haustoj.pojo.entity.User;
+import com.example.haustoj.pojo.po.User;
 
 /**
- * @FileName UserDao
- * @Description
- * @Author ouyu
- * @Date 2025-10-24
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-27 18:16
+ * @Description:
+ */
 public interface UserDao extends BaseMapper<User> {
 }

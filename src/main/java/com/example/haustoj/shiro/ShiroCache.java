@@ -8,7 +8,6 @@ import org.apache.shiro.util.CollectionUtils;
 
 import java.util.*;
 
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.cn;
 
 /**
  * @FileName ShiroCache
@@ -43,6 +42,12 @@ public class ShiroCache<K,V> implements Cache<K,V> {
         return this.cacheKeyPrefix + userId;
     }
 
+    
+    /** 
+     * @param k
+     * @return V
+     * @throws CacheException
+     */
     @Override
     public V get(K k) throws CacheException {
         return (V) this.redisUtils.get(getKey(k));

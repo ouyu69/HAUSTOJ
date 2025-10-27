@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * @FileName ResultStatus
- * @Description
- * @Author ouyu
- * @Date 2025-10-26
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-26 18:13
+ * @Description:
+ */
 @Getter
 @AllArgsConstructor
 public enum ResultStatus {

@@ -1,10 +1,10 @@
 package com.example.haustoj.service;
 
 /**
- * @FileName UserService
- * @Description
- * @Author ouyu
- * @Date 2025-10-24
- **/
+ * @Author: ouyu69
+ * @Date: 2025-10-27 18:40
+ * @Description:
+ */
 public interface UserService{
+    
 }

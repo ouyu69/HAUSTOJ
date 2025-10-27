@@ -5,10 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @FileName AccountProfile
- * @Description
  * @Author ouyu
  * @Date 2025-10-26
+ * @Description
  **/
 @Data
 public class AccountProfile implements Serializable {

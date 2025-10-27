@@ -16,7 +16,7 @@ import java.util.Date;
  * @Author ouyu
  * @Date 2025-10-26
  **/
-@Slf4j(topic = "hoj-jwt")
+@Slf4j(topic = "haustoj-jwt")
 @Data
 @Component
 public class JwtUtils {
@@ -45,6 +45,11 @@ public class JwtUtils {
         redisUtils.set(ShiroConstant.SHIRO_TOKEN_REFRESH + userId, "1", checkRefreshExpire);
         return token;
     }
+    
+    /** 
+     * @param token
+     * @return Claims
+     */
     public Claims getClaimByToken(String token) {
         try {
             return Jwts.parser()

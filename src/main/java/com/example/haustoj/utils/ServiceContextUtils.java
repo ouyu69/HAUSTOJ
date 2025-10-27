@@ -1,6 +1,7 @@
 package com.example.haustoj.utils;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
  * @Author ouyu
  * @Date 2025-10-26
  **/
+@Component
 public class ServiceContextUtils {
     /**
      * 先从method上获取注解，获取不到再从class上获取

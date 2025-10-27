@@ -110,6 +110,13 @@ public class JwtFilter extends AuthenticatingFilter {
         }
     }
 
+    
+    /** 
+     * @param servletRequest
+     * @param servletResponse
+     * @return AuthenticationToken
+     * @throws Exception
+     */
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
         // 获取 token
