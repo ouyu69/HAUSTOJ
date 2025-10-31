@@ -4,7 +4,7 @@
 <mapper namespace="com.example.haustoj.dao.UserDao">
     <resultMap id="BaseResultMap" type="com.example.haustoj.pojo.po.User">
 <!--        用户id-->
-        <id property="id" column="id"/>
+        <id property="uuid" column="uuid"/>
         <!--文章所属用户id-->
         <result property="userId" column="user_id"/>
         <!--文章的标题-->

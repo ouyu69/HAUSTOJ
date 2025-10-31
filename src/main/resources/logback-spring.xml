@@ -6,16 +6,15 @@
         </layout>
     </appender>
 
-    <springProperty scope="context" name="log.path" source="project.folder"/>
-    <springProperty scope="context" name="log.root.level" source="log.root.level"/>
+    <springProperty scope="context" name="logging.file.path" source="logging.file.path"/>
+    <springProperty scope="context" name="logging.level.root" source="logging.level.root"/>
 
-    <property name="LOG_FOLDER" value="logs"/>
     <property name="LOG_FILE_NAME" value="haustoj.log"/>
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.path}/${LOG_FOLDER}/${LOG_FILE_NAME}</file>
+        <file>${logging.file.path}/${LOG_FILE_NAME}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${log.path}/${LOG_FOLDER}/${LOG_FILE_NAME}.%d{yyyyMMdd}.%i</FileNamePattern>
+            <FileNamePattern>${logging.file.path}/${LOG_FOLDER}/${LOG_FILE_NAME}.%d{yyyyMMdd}.%i</FileNamePattern>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
             <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <MaxFileSize>20MB</MaxFileSize>
@@ -29,7 +28,7 @@
         <append>false</append>
         <prudent>false</prudent>
     </appender>
-    <root level="${log.root.level}">
+    <root level="${log.level.root}">
         <appender-ref ref="stdot"/>
         <appender-ref ref="file"/>
     </root>

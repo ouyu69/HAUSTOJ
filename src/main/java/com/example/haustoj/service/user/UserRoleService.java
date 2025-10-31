@@ -1,8 +1,11 @@
-package com.example.haustoj.service;
+package com.example.haustoj.service.user;
 
 import javax.annotation.Resource;
 
+import com.example.haustoj.pojo.po.Role;
 import com.example.haustoj.pojo.vo.UserRolesVo;
+
+import java.util.List;
 
 /**
  * @Author: ouyu69
@@ -10,6 +13,5 @@ import com.example.haustoj.pojo.vo.UserRolesVo;
  * @Description:
  */
 public interface UserRoleService {
-    public UserRolesVo getUserRoles(String userId, String email);
-
+    public List<Role> getRolesByUid(String uid);
 }

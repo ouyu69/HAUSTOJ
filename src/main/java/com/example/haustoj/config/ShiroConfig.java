@@ -2,10 +2,17 @@ package com.example.haustoj.config;
 
 import com.example.haustoj.shiro.*;
 import com.example.haustoj.utils.RedisUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
+import org.apache.shiro.mgt.DefaultSubjectDAO;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +36,7 @@ public class ShiroConfig {
     @Resource
     private JwtFilter jwtFilter;
 
-    @Value("${haust.jwt.expire:86400}")
-    private long expire;
+    private long expire = 86400000L;
 
     public ShiroConfig() {
     }
@@ -40,18 +46,25 @@ public class ShiroConfig {
      * @return DefaultWebSecurityManager
      */
     @Bean(name = "securityManager")
-    public DefaultWebSecurityManager defaultWebSecurityManager(@Qualifier("getAccountRealm") AccountRealm accountRealm) {
-        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager(accountRealm);
+    public DefaultWebSecurityManager securityManager(AccountRealm accountRealm) {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        ObjectMapper objectMapper = new ObjectMapper();
+        securityManager.setRealm(accountRealm);
+        SecurityUtils.setSecurityManager(securityManager);
         ShiroCacheManager shiroCacheManager = new ShiroCacheManager();
         shiroCacheManager.setCacheLiveTime(expire);
         shiroCacheManager.setCacheKeyPrefix(ShiroConstant.SHIRO_AUTHORIZATION_CACHE);
         shiroCacheManager.setRedisUtils(redisUtils);
+        shiroCacheManager.setObjectMapper(objectMapper);
         securityManager.setCacheManager(shiroCacheManager);
-
         /**
          * 关闭shiro自带的session
          */
-        securityManager.setSessionManager(null);
+        DefaultSubjectDAO defaultSubjectDAO = new DefaultSubjectDAO();
+        DefaultSessionStorageEvaluator sessionStorageEvaluator = new DefaultSessionStorageEvaluator();
+        sessionStorageEvaluator.setSessionStorageEnabled(false);
+        defaultSubjectDAO.setSessionStorageEvaluator(sessionStorageEvaluator);
+        securityManager.setSubjectDAO(defaultSubjectDAO);
         return securityManager;
     }
     @Bean
@@ -62,23 +75,30 @@ public class ShiroConfig {
         chainDefinition.addPathDefinitions(filterMap);
         return chainDefinition;
     }
-    @Bean
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager, @Qualifier("shiroFilterChainDefinition") ShiroFilterChainDefinition shiroFilterChainDefinition) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-        //设置安全管理器
-        shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager);
+    @Bean("shiroFilterFactoryBean")
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager,
+                                                         ShiroFilterChainDefinition shiroFilterChainDefinition) {
+        ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
+        shiroFilter.setSecurityManager(securityManager);
         Map<String, Filter> filters = new HashMap<>();
         filters.put("jwt", jwtFilter);
-        shiroFilterFactoryBean.setFilters(filters);
+        shiroFilter.setFilters(filters);
         Map<String, String> filterMap = shiroFilterChainDefinition.getFilterChainMap();
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterMap);
-
-        return shiroFilterFactoryBean;
+        shiroFilter.setFilterChainDefinitionMap(filterMap);
+        return shiroFilter;
     }
-
+    //开启注解代理
     @Bean
-    AccountRealm getAccountRealm() {
-        return new AccountRealm();
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager securityManager){
+        AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
+        return authorizationAttributeSourceAdvisor;
+    }
+    @Bean
+    public static DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
+        creator.setProxyTargetClass(true);
+        return creator;
     }
 
 }

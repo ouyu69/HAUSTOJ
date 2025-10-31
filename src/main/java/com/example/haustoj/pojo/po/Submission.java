@@ -16,7 +16,7 @@ public class Submission {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long problemId;
-    private Long userId;
+    private String uid;
     private Long contestId;
     private String language;
     private String code;

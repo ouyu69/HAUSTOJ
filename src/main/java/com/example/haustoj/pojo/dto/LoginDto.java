@@ -1,5 +1,6 @@
 package com.example.haustoj.pojo.dto;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 
 
@@ -10,6 +11,6 @@ import lombok.Data;
  */
 @Data
 public class LoginDto {
-    private String email;
+    private String username;
     private String password;
 }
