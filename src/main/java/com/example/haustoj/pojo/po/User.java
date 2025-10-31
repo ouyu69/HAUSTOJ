@@ -15,8 +15,8 @@ import java.util.Date;
 @Data
 @TableName("user") // 指定表名
 public class User {
-    @TableId(type = IdType.AUTO) // 如果有id字段且是自增主键
-    private Long id;
+    @TableId
+    private String uuid;
     private String email ;
     private String username ;
     private String password ;

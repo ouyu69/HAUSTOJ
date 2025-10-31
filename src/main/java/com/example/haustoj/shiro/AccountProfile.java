@@ -11,8 +11,11 @@ import java.io.Serializable;
  **/
 @Data
 public class AccountProfile implements Serializable {
-    private Long id;
+    private String uuid;
     private String username;
     private String email ;
     private Integer status;
+    public String getId() { //shiro登录用户实体默认主键获取方法要为getId
+        return uuid;
+    }
 }

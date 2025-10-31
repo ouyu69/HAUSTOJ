@@ -17,6 +17,7 @@ import java.util.Date;
 public class Problem {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private String uid;
     private String title;
     private String description;
     // 0: 正常 1: 禁用/隐藏 2: 删除

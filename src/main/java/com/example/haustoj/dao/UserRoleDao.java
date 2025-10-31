@@ -8,12 +8,15 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.haustoj.pojo.po.Role;
 import com.example.haustoj.pojo.po.UserRole;
 import com.example.haustoj.pojo.vo.UserRolesVo;
+import org.springframework.stereotype.Component;
 
 /**
  * @Author: ouyu69
  * @Date: 2025-10-27 18:16
  * @Description:
  */
+@Component
 public interface UserRoleDao extends BaseMapper<UserRole>{
-    UserRolesVo getUserRoles(@Param("userId") Long userId, @Param("email") String email);
+    UserRolesVo getUserRoles(@Param("uid") String uid, @Param("username") String username);
+    List<Role> getRolesByUid(@Param("uid") String uid);
 }

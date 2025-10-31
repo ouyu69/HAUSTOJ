@@ -3,6 +3,7 @@ package com.example.haustoj.pojo.vo;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: ouyu69
@@ -11,9 +12,11 @@ import java.util.List;
  */
 @Data
 public class UserInfoVo {
-    private Long userId ;
+    private String uid ;
     private String email ;
     private String username ;
-    private List<String> RoleList ;
+    private Integer status ;
+    private Set<String> RoleSet ;
+    private Set<String> AuthSet ;
     
 }

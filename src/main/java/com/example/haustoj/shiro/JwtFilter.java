@@ -13,9 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.RequestPath;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
@@ -43,7 +45,7 @@ import java.util.UUID;
 
 
 @Component
-@Slf4j(topic = "hoj")
+@Slf4j(topic = "haustoj")
 public class JwtFilter extends AuthenticatingFilter {
 
     @Resource
@@ -62,30 +64,47 @@ public class JwtFilter extends AuthenticatingFilter {
      */
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+
         HttpServletRequest httpRequest = WebUtils.toHttp(request);
-        WebUtils.saveRequest(httpRequest);
-        WebApplicationContext ctx = RequestContextUtils.findWebApplicationContext(httpRequest);
-        RequestMappingHandlerMapping mapping = ctx.getBean(
-                "requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
+        httpRequest.setAttribute("org.springframework.web.util.ServletRequestPathUtils.PATH",
+                RequestPath.parse(httpRequest.getRequestURI(), httpRequest.getContextPath()));
+
         try {
+            WebApplicationContext ctx = RequestContextUtils.findWebApplicationContext(httpRequest);
+            RequestMappingHandlerMapping mapping = ctx.getBean(
+                    "requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
             HandlerExecutionChain handler = mapping.getHandler(httpRequest);
-            HandlerMethod handlerClazz = (HandlerMethod) handler.getHandler();
+            
+            // 如果没有找到处理器，允许访问（由其他过滤器处理）
+            if (handler == null) {
+                return true;
+            }
+            
+            Object handlerObj = handler.getHandler();
+            // 如果处理器不是HandlerMethod类型，允许访问
+            if (!(handlerObj instanceof HandlerMethod)) {
+                return true;
+            }
+            
+            HandlerMethod handlerClazz = (HandlerMethod) handlerObj;
             // 判断请求是否访问的是公共接口，如果拥有@AnonApi注解则不再走登录认证，直接访问controller对应的方法
             AnonApi anonApi = ServiceContextUtils.getAnnotation(handlerClazz.getMethod(),
                     handlerClazz.getBeanType(),
                     AnonApi.class);
             // 有AnonApi注解，说明无需登录就可以访问
+
             if (anonApi != null) {
+
                 // 即使api标记了不用登录，但如果请求头携带了token，可以尝试着进行登录验证。
                 String jwt = httpRequest.getHeader("Authorization");
-                if (StrUtil.isNotBlank(jwt)) {
+                if (jwt != null && !"null".equals(jwt)) {
                     try {
                         Claims claim = jwtUtils.getClaimByToken(jwt);
                         if (claim == null || jwtUtils.isTokenExpired(claim.getExpiration())) {
                             // 如果已经过期，则不进行登录尝试
                             return true;
                         }
-                        Long userId = Long.valueOf(claim.getSubject());
+                        String userId = claim.getSubject();
                         boolean hasToken = jwtUtils.hasToken(userId);
                         // 缓存中不存在，说明了token失效，则不进行登录尝试
                         if (!hasToken) {
@@ -103,10 +122,12 @@ public class JwtFilter extends AuthenticatingFilter {
                 }
                 return true;
             } else {
+                // 没有@AnonApi注解，需要进行认证
                 return false;
             }
         } catch (Exception e) {
-            return true;
+            // 出现异常时，默认需要认证
+            return false;
         }
     }
 
@@ -130,39 +151,49 @@ public class JwtFilter extends AuthenticatingFilter {
 
 
     @Override
-    protected boolean onAccessDenied(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        String token = request.getHeader("Authorization");
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String token = httpRequest.getHeader("Authorization");
+
         if (StrUtil.isBlank(token)) {
-            return true;
+            return this.onLoginFailure(null,
+                    new AuthenticationException("缺少认证令牌"), request, response);
         } else {
-            // 判断是否已过期
+            // 验证JWT token有效性
             Claims claim = jwtUtils.getClaimByToken(token);
             if (claim == null || jwtUtils.isTokenExpired(claim.getExpiration())) {
                 return this.onLoginFailure(null,
-                        new AuthenticationException("登录状态已失效，请重新登录！"), servletRequest, servletResponse);
+                        new AuthenticationException("登录状态已失效，请重新登录！"), request, response);
             }
-            Long userId = Long.valueOf(claim.getSubject());
-
-            // 如果校验请求携带的token 与 redis缓存对应的token
-            // 那就会造成一个地方登录，另一个地方老的token就直接失效。
-            // 对于OJ来说，允许多地方登录在线。
-            // 所以这是判断是否存在这个用户的访问token
+            String userId = claim.getSubject();
             boolean hasToken = jwtUtils.hasToken(userId);
             if (!hasToken) {
                 return this.onLoginFailure(null,
-                        new AuthenticationException("登录状态已失效，请重新登录！"), servletRequest, servletResponse);
+                        new AuthenticationException("登录状态已失效，请重新登录！"), request, response);
             }
-            if (!redisUtils.hasKey(ShiroConstant.SHIRO_TOKEN_REFRESH + userId)) {
-                //过了需更新token时间，但是还未过期，则进行token刷新
-                HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-                HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-                this.refreshToken(httpRequest, httpResponse, userId);
+            if(!redisUtils.hasKey(ShiroConstant.SHIRO_TOKEN_REFRESH + userId)){
+                this.refreshToken(httpRequest, httpResponse,userId);
             }
+            try {
+                // 手动登录
+                boolean loginResult = executeLogin(request, response);
+                Subject subject = SecurityUtils.getSubject();
+                log.info("认证后Subject状态 - isAuthenticated: {}, principal: {}",
+                        subject.isAuthenticated(), subject.getPrincipal());
 
+                if (!subject.isAuthenticated()) {
+                    log.warn("认证失败，Subject未正确设置");
+                    return false;
+                }
+
+                return loginResult;
+            } catch (Exception e) {
+                log.error("认证过程中发生异常", e);
+                return this.onLoginFailure(null,
+                        new AuthenticationException("认证失败"), request, response);
+            }
         }
-        // 执行自动登录
-        return executeLogin(servletRequest, servletResponse);
     }
 
     /**
@@ -173,11 +204,11 @@ public class JwtFilter extends AuthenticatingFilter {
      * @param response
      * @return
      */
-    private void refreshToken(HttpServletRequest request, HttpServletResponse response, Long userId) throws IOException {
+    private void refreshToken(HttpServletRequest request, HttpServletResponse response, String userId) throws IOException {
         String requestId = UUID.randomUUID().toString();
         boolean locked = redisUtils.getLock(ShiroConstant.SHIRO_TOKEN_LOCK + userId, 20, requestId);// 获取锁20s
         if (locked) {
-            String newToken = jwtUtils.generateToken(userId.toString());
+            String newToken = jwtUtils.generateToken(userId);
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Authorization", newToken); //放到信息头部
             response.setHeader("Access-Control-Expose-Headers", "Refresh-Token,Authorization,Url-Type"); //让前端可用访问

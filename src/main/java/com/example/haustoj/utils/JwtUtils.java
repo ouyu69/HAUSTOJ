@@ -5,6 +5,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import javax.annotation.Resource;
@@ -19,30 +21,30 @@ import java.util.Date;
 @Slf4j(topic = "haustoj-jwt")
 @Data
 @Component
+@ConfigurationProperties(prefix = "haustoj.jwt")
 public class JwtUtils {
-    private String secret ;
+    private String secret;
     private long expire ;
     private String header ;
     private long checkRefreshExpire;
     @Resource
     private RedisUtils redisUtils;
-
     /**
      * 生成jwt token
      */
-    public String generateToken(String userId) {
+    public String generateToken(String uid) {
         Date nowDate = new Date();
         // 过期时间
         Date expireDate = new Date(nowDate.getTime() + expire * 1000);
         String token = Jwts.builder()
                 .setHeaderParam("typ", "JWT")
-                .setSubject(userId)
+                .setSubject(uid)
                 .setIssuedAt(nowDate)
                 .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
-        redisUtils.set(ShiroConstant.SHIRO_TOKEN_KEY + userId, token, expire);
-        redisUtils.set(ShiroConstant.SHIRO_TOKEN_REFRESH + userId, "1", checkRefreshExpire);
+        redisUtils.set(ShiroConstant.SHIRO_TOKEN_KEY + uid, token, expire);
+        redisUtils.set(ShiroConstant.SHIRO_TOKEN_REFRESH + uid, "1", checkRefreshExpire);
         return token;
     }
     
@@ -76,7 +78,7 @@ public class JwtUtils {
     public boolean isTokenExpired(Date expiration) {
         return expiration.before(new Date());
     }
-    public Boolean hasToken(Long uid) {
+    public Boolean hasToken(String uid) {
         return redisUtils.hasKey(ShiroConstant.SHIRO_TOKEN_KEY + uid);
     }
 

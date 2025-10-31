@@ -18,9 +18,8 @@ import lombok.Data;
 public class UserRole {
     @TableId(type = IdType.AUTO)
     private Long id ;
-    private Long user_id ; 
-    private Long role_id ;
+    private String uid ;
+    private Integer roleId ;
     private Date createTime ;
     private Date updateTime ;
-
 }

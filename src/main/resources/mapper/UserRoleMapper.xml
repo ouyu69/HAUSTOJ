@@ -1,51 +1,80 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.haustoj.dao.UserRoleDao">
     <resultMap id="UserRolesVoMap" type="com.example.haustoj.pojo.vo.UserRolesVo">
-        <result property="email" column="email"/>
-        <result property="username" column="username"/>
-        <result property="password" column="password"/>
-        <result property="status" column="status"/>
+        <id column="uuid" property="uid"/>
+        <result column="email" property="email"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
         <collection property="roleList" ofType="com.example.haustoj.pojo.po.Role">
-            <id column="id" property="id"></id>
-            <result column="name" property="name"></result>
-            <result column="description" property="description"></result>
-            <result column="status" property="status"></result>
-            <result column="create_time" property="createTime"></result>
-            <result column="update_time" property="updateTime"></result>
+            <id column="role_id" property="id"/>
+            <result column="role_name" property="name"/>
+            <result column="role_description" property="description"/>
+            <result column="role_status" property="status"/>
+            <result column="role_create_time" property="createTime"/>
+            <result column="role_update_time" property="updateTime"/>
         </collection>
     </resultMap>
     
     <select id="getUserRoles" resultMap="UserRolesVoMap">
         SELECT
-            u.id as user_id
+            u.uuid as uuid,
             u.email as email,
             u.username as username,
             u.password as password,
             u.status as status,
+            u.create_time as create_time,
+            u.update_time as update_time,
             r.id as role_id,
-            r.name as name,
-            r.description as description,
-            r.status as status,
-            r.create_time as create_time,
-            r.update_time as update_time
+            r.name as role_name,
+            r.description as role_description,
+            r.status as role_status,
+            r.create_time as role_create_time,
+            r.update_time as role_update_time
         FROM user u
         LEFT OUTER JOIN 
             user_role ur 
         ON 
-            u.id = ur.user_id 
+            u.uuid = ur.uid
         LEFT JOIN 
             role r 
         ON 
             r.id = ur.role_id 
         <where>
-            <if test="userId != null">
-                u.id = #{userId}
+            <if test="uid != null">
+                u.uuid = #{uid}
             </if>
-            <if test="email != null and email != ''">
-                and u.email = #{email}
+            <if test="username != null and username != ''">
+                and u.username = #{username}
             </if>
         </where>
+    </select>
+    <resultMap id="Role" type="com.example.haustoj.pojo.po.Role">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    <select id="getRolesByUid" resultMap="Role">
+        SELECT
+            r.id as id,
+            r.name as name,
+            r.description as description,
+            r.status as status,
+            r.create_time as create_time,
+            r.update_time as update_time
+        FROM role r
+        LEFT OUTER JOIN
+            user_role ur
+        ON
+            r.id = ur.role_id
+        WHERE
+            ur.uid = #{uid}
     </select>
 </mapper>
